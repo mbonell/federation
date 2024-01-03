@@ -54,7 +54,6 @@ import { ERRORS } from "./error";
 import { isSubtype, sameType, typesCanBeMerged } from "./types";
 import { assert, mapKeys, mapValues, MapWithCachedArrays, MultiMap, SetMultiMap } from "./utils";
 import { argumentsEquals, argumentsFromAST, isValidValue, valueToAST, valueToString } from "./values";
-import { v1 as uuidv1 } from 'uuid';
 
 function validate(condition: any, message: () => string, sourceAST?: ASTNode): asserts condition {
   if (!condition) {
@@ -395,6 +394,7 @@ export class Field<TArgs extends {[key: string]: any} = {[key: string]: any}> ex
   }
 }
 
+let NEVER_EQUAL_COUNTER = 0;
 /**
  * Computes a string key representing a directive application, so that if 2 directive applications have the same key, then they
  * represent the same application.
@@ -410,7 +410,7 @@ function keyForDirective(
   directivesNeverEqualToThemselves: string[] = [ 'defer' ],
 ): string {
   if (directivesNeverEqualToThemselves.includes(directive.name)) {
-    return uuidv1();
+    return `\0neverEqualDirective${NEVER_EQUAL_COUNTER++}`;
   }
   const entries = Object.entries(directive.arguments()).filter(([_, v]) => v !== undefined);
   entries.sort(([n1], [n2]) => n1.localeCompare(n2));

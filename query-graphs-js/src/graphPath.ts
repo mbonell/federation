@@ -34,9 +34,10 @@ import { OpPathTree, traversePathTree } from "./pathTree";
 import { Vertex, QueryGraph, Edge, RootVertex, isRootVertex, isFederatedGraphRootType, FEDERATED_GRAPH_ROOT_SOURCE } from "./querygraph";
 import { DownCast, Transition } from "./transition";
 import { PathContext, emptyContext } from "./pathContext";
-import { v4 as uuidv4 } from 'uuid';
 
 const debug = newDebugLogger('path');
+
+let NEXT_PATH_ID = 0;
 
 function updateRuntimeTypes(currentRuntimeTypes: readonly ObjectType[], edge: Edge | null): readonly ObjectType[] {
   if (!edge) {
@@ -150,8 +151,8 @@ type PathProps<TTrigger, RV extends Vertex = Vertex, TNullEdge extends null | ne
     cost: number,
   },
 
-  readonly ownPathIds: readonly string[],
-  readonly overriddingPathIds: readonly string[],
+  readonly ownPathIds: readonly number[],
+  readonly overriddingPathIds: readonly number[],
 
   readonly edgeToTail?: Edge | TNullEdge,
   /** Names of the all the possible runtime types the tail of the path can be. */
@@ -754,7 +755,7 @@ export class GraphPath<TTrigger, RV extends Vertex = Vertex, TNullEdge extends n
     thisPath: GraphPath<TTrigger, RV, TNullEdge>,
     otherOptions: GraphPath<TTrigger, RV, TNullEdge>[][],
   } {
-    const newId = uuidv4();
+    const newId = NEXT_PATH_ID++;
     return {
       thisPath: new GraphPath({
         ...this.props,
